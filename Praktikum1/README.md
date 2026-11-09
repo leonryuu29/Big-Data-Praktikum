@@ -35,7 +35,7 @@ flowchart TD
     I --> J[自动化测试 23 个 + TESTBERICHT.md]
     J --> K[Abgabe.md 德语提交稿]
     K --> L[GitHub 仓库 Big-Data-Praktikum + CI]
-    L --> M[填写姓名学号 → ILIAS 提交]
+    L --> M[ILIAS 提交]
 ```
 
 | 阶段 | 输入 | 产出 | 工具/命令 |
@@ -63,13 +63,13 @@ flowchart TD
 | 2d 详情查询 | ✅ 完成并测试 | |
 | Windows 启动/下载脚本 | ✅ 完成 | `scripts/` |
 | **用真实 business.json 跑一遍，得到具体数字** | ✅ 完成（11-09） | 你下载到 Downloads 的真实文件，在 Redis 7.0.15 上全量导入（约 28 s），输出见 `results/` |
-| 提交稿（德语）`Abgabe.md` | ✅ 完成 | 所有数字和 "The Still" 评价已填入；只差姓名/学号 |
+| 提交稿（德语）`Abgabe.md` | ✅ 完成 | 所有数字、"The Still" 评价、姓名学号已填入 |
 | 一键运行脚本 `scripts/run_all.ps1` | ✅ 完成 | 结果保存到 `results/antworten.txt` |
 | 自动化测试 + 测试报告 | ✅ 完成 | 23/23 通过，见 `TESTBERICHT.md` |
 | 本地部署（Windows，便携版 Redis 5.0.14.1 + redis-py 8.1.0） | ✅ 完成 | 见第 8 节 |
 | 上传 GitHub（独立仓库 Big-Data-Praktikum） | ✅ 完成 | https://github.com/leonryuu29/Big-Data-Praktikum |
 | GitHub Actions 自动测试（Python 3.10/3.13 × Redis 5/7） | ✅ 已配置 | `.github/workflows/praktikum1-tests.yml` |
-| 填写姓名学号，提交 ILIAS | ⏳ 待你完成 | 截止 15.11.2026 |
+| 提交 ILIAS | ⏳ 待你完成 | 截止 15.11.2026 |
 
 ## 4. 本地运行步骤（Windows / PowerShell）
 
