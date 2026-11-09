@@ -55,6 +55,40 @@ python -m unittest discover -s tests -v
 
 Die Yelp-Daten (`business.json`, ~135 MB) liegen nicht im Repository; Download siehe `Praktikum1/scripts/download_data.ps1` bzw. Aufgabenblatt.
 
+### Arbeitsweise mit Branches
+
+```mermaid
+gitGraph
+    commit id: "Praktikum 1"
+    branch praktikum2
+    checkout praktikum2
+    commit id: "Aufgabe 1"
+    commit id: "Aufgabe 2 + Tests"
+    checkout main
+    merge praktikum2 id: "PR: Praktikum 2"
+    branch praktikum3
+    checkout praktikum3
+    commit id: "..."
+```
+
+| Branch | Zweck |
+|---|---|
+| `main` | nur fertige, getestete Praktika |
+| `praktikumN` | Arbeit am Praktikum N → Pull Request nach `main`, Merge wenn CI grün |
+| `fix/praktikumN-…` | Korrekturen an einem abgeschlossenen Praktikum |
+| `setup/…` | CI, Vorlagen, Repository-Struktur |
+
+Neues Praktikum starten:
+
+```bash
+git checkout main && git pull
+git checkout -b praktikum2
+# Ordner Praktikum2/ anlegen, arbeiten, committen
+git push -u origin praktikum2   # dann Pull Request auf GitHub öffnen
+```
+
+Jeder Pull Request nutzt die Vorlage `.github/pull_request_template.md` (Checkliste für Abgabe, Tests, CI).
+
 ### Continuous Integration
 
 Bei jedem Push/PR auf `Praktikum1/**` laufen die Tests per GitHub Actions gegen echte Redis-Container (Redis 5 und 7) mit Python 3.10 und 3.13. Die Tests auf dem vollständigen Datensatz werden in CI übersprungen, weil `business.json` nicht eingecheckt ist.
