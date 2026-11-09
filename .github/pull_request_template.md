@@ -12,5 +12,5 @@
 - [ ] `PraktikumN/README.md`: Aufgabenanalyse, Workflow, Fortschritt
 - [ ] Tests unter `PraktikumN/tests/`, lokal grün
 - [ ] CI (GitHub Actions) grün
-- [ ] `PraktikumN/Abgabe.md` vollständig (Name, Matrikelnr., alle Antworten)
+- [ ] `PraktikumN/Abgabe.md` vollständig (Zhaoze Yu, 50293014, alle Antworten)
 - [ ] Keine großen Datendateien eingecheckt (`data/` ist ignoriert)

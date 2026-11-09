@@ -2,6 +2,11 @@
 
 Repository für die Praktika der Vorlesung Big Data (HSBI, WS 2026/27).
 
+## Autor (für alle Abgaben)
+- **Name:** Zhaoze Yu
+- **Matrikelnummer:** 50293014
+- In jeder `PraktikumN/Abgabe.md` steht in der Kopfzeile: `**Name:** Zhaoze Yu · **Matrikelnr.:** 50293014 · WS 2026/27`. Nie als Platzhalter (`___`) stehen lassen.
+
 ## Struktur
 - Jedes Praktikum in einem eigenen Ordner `PraktikumN/` mit: Code, `README.md` (Aufgabenanalyse, Workflow, Fortschritt – auf Chinesisch), `Abgabe.md` (Abgabe auf Deutsch), `tests/`, `TESTBERICHT.md`, `results/`.
 - Pro Praktikum ein CI-Workflow `.github/workflows/praktikumN-tests.yml`, gefiltert auf `PraktikumN/**`.
