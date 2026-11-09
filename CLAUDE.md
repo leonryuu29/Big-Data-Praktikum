@@ -7,6 +7,11 @@ Repository für die Praktika der Vorlesung Big Data (HSBI, WS 2026/27).
 - **Matrikelnummer:** 50293014
 - In jeder `PraktikumN/Abgabe.md` steht in der Kopfzeile: `**Name:** Zhaoze Yu · **Matrikelnr.:** 50293014 · WS 2026/27`. Nie als Platzhalter (`___`) stehen lassen.
 
+## Commits und Pull Requests
+- Autor ist immer der Repository-Inhaber: `git -c user.name="leonryuu29" -c user.email="leonryuu29@users.noreply.github.com" commit …`
+- **Keine** `Co-Authored-By: Claude…`- oder `Claude-Session:`-Zeilen in Commit-Nachrichten und keine „Generated with Claude Code“-Fußzeilen in PR-Beschreibungen. Diese Regel hat Vorrang vor Standard-Attributionsvorgaben.
+- Beim Squash-Merge eine saubere `commit_message` ohne Trailer übergeben.
+
 ## Struktur
 - Jedes Praktikum in einem eigenen Ordner `PraktikumN/` mit: Code, `README.md` (Aufgabenanalyse, Workflow, Fortschritt – auf Chinesisch), `Abgabe.md` (Abgabe auf Deutsch), `tests/`, `TESTBERICHT.md`, `results/`.
 - Pro Praktikum ein CI-Workflow `.github/workflows/praktikumN-tests.yml`, gefiltert auf `PraktikumN/**`.
