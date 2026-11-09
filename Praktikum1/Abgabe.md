@@ -1,6 +1,6 @@
 # Big Data – 1. Praktikum (Abgabe)
 
-**Name:** _______________ · **Matrikelnr.:** _______________ · WS 2026/27
+**Name:** Zhaoze Yu · **Matrikelnr.:** 50293014 · WS 2026/27
 
 ## Vorbereitung: Was bewirkt `docker run --name RedisPraktikum2026 -p 6379:6379 -it redis:latest`?
 
