@@ -1,124 +1,142 @@
 # Testbericht – Big Data, 1. Praktikum (Redis + Yelp)
 
+**Name:** Zhaoze Yu · **Matrikelnr.:** 50293014 · WS 2026/27
+
 | | |
 |---|---|
-| Datum | 09.11.2026 |
-| Testobjekt | `yelp_redis.py`, `load_data.py`, `autocomplete.py`, `answers.py` (Aufgabe 2a–2d) |
-| Testdatei | `tests/test_yelp_redis.py` (Python `unittest`, keine Zusatzpakete nötig) |
-| Ergebnis | **23 / 23 bestanden**, 0 Fehler, 0 übersprungen (Laufzeit 25,8 s inkl. Vollimport) |
+| Datum | 18.11.2026 (Überarbeitung auf den Teststandard aus Praktikum 2) |
+| Testobjekt | `yelp_redis.py`, `load_data.py`, `autocomplete.py`, `answers.py`, `cli/aufgabe1.redis` (Aufgabe 1 und 2 a–d) |
+| Testkette | `run_tests.py` → 5 Stufen in `tests/test_0_smoke.py` … `tests/test_4_integrity.py` (Python `unittest`) |
+| Ergebnis | **48 / 48 bestanden**, 0 Fehler, 0 übersprungen |
 | Rohausgabe | `results/test_output.txt` |
 
 ## 1. Testumgebungen
 
-| | Umgebung A (Testlauf dieses Berichts) | Umgebung B (lokaler Rechner) |
-|---|---|---|
-| Betriebssystem | Linux (Cloud-Container) | Windows 11 (10.0.22631) |
-| Redis-Server | 7.0.15 | 5.0.14.1 (tporadowski, portabel) |
-| Python | 3.13 | 3.10.11 |
-| Redis-Client | minimaler RESP-Client mit derselben API (redis-py war offline nicht installierbar) | redis-py 8.1.0 |
-| Daten | `business.json` (192.609 Zeilen), `tests/sample_synthetic.json` | dieselben Dateien unter `data\` |
+| | Cloud-Container | Windows-Rechner | GitHub Actions (CI) |
+|---|---|---|---|
+| Status | ✅ 48/48 | ⏳ wird nach dem lokalen Lauf nachgetragen | ✅ 4 × 48/48 |
+| Redis | 8.10.3 (`redis:latest`) | `redis:latest` über Docker Desktop | `redis:latest` und `redis:5` |
+| Python | 3.13 | 3.10.11 | 3.10 und 3.13 |
+| Client | minimaler RESP2-Client mit derselben API (redis-py dort nicht installierbar) | redis-py von PyPI | redis-py 8.1.0 von PyPI |
+| Daten | `business.json` (192 609 Zeilen) | dieselbe Datei | Download von Sciebo wie im Aufgabenblatt |
+| Ablauf | `scripts/run_praktikum1.sh` | `deploy.bat` → `scripts/run_praktikum1.ps1` | `scripts/run_praktikum1.sh` |
 
-In Umgebung B wurden Installation, Serverstart (`PONG`) und Installation von redis-py über `deploy.bat` erfolgreich durchgeführt. Die Tests lassen sich dort mit **`run_tests.bat`** ausführen; die Ausgabe landet in `results\test_output_local.txt`.
+Der vollständige Ablauf wurde zusätzlich in einem **frischen Container** von Grund auf wiederholt; auch dabei waren alle 48 Tests grün.
 
-## 2. Teststrategie
+## 2. Teststrategie: fünf Stufen
 
-Die Tests laufen gegen einen **echten Redis-Server**, aber in **Datenbank 15**, damit die importierten Daten in Datenbank 0 nicht verändert werden. Jede Testklasse leert db 15 am Ende wieder.
+| Stufe | Frage | Braucht | Abbruch bei Fehler |
+|---|---|---|---|
+| 1 **Smoke** | Läuft die Umgebung? redis-py importierbar, PING, Version, Dateien, Skripte kompilieren | Server | **ja** |
+| 2 **Unit** | Ist die reine Logik richtig? Datei lesen, Namensschlüssel, Präfixgrenzen, Detailausgabe | nichts | nein |
+| 3 **Integration** | Stimmen Import und Abfragen auf einem echten Server? | Server, **Datenbank 15** (wird geleert) | nein |
+| 4 **Effizienz** | Schickt der Code die *richtigen und wenigen* Befehle? (`CONFIG RESETSTAT` + `INFO commandstats`) | importierte Daten (db 0, nur lesend) | nein |
+| 5 **Integrität** | Sind alle echten Daten unverändert angekommen, und stimmen die Antworten der Abgabe? | importierte Daten + `business.json` | nein |
 
-1. **Fixture-Tests** – 12 handverlesene Datensätze mit bekannten Sonderfällen: drei Starbucks-Filialen in unterschiedlicher Schreibweise (`Starbucks`/`STARBUCKS`), eine Namensvariante (`Starbucks Coffee`), zwei verschiedene „The Still“, ähnliche Präfixe (`The Stirling Room`, `Star Pizza`) sowie Namen mit Umlauten, CJK- und vietnamesischen Zeichen. Eine Leerzeile am Dateiende prüft robustes Einlesen; `batch_size=3` erzwingt mehrere Pipeline-Flushes.
-2. **Synthetische Datei** – 200 Datensätze im Yelp-Format (`tests/sample_synthetic.json`).
-3. **Echte Daten** – Vollimport von `business.json` und Abgleich mit den Antworten der Abgabe. Wird automatisch übersprungen, wenn `data/business.json` fehlt.
+Regeln:
+
+- Getestet wird gegen einen echten Server. Die Tests schreiben nur in Datenbank 15; die echten Daten in Datenbank 0 werden nur gelesen.
+- Die Fixture `tests/fixtures/business_fixture.json` enthält gezielt Sonderfälle: Groß- und Kleinschreibung (`STARBUCKS`), Umlaute, CJK- und vietnamesische Zeichen, zwei Betriebe mit gleichem Namen („The Still“), einen Betrieb ohne Namen und Leerzeilen am Dateiende.
+- Die Integritätstests vergleichen mit einem **unabhängigen Orakel**, das die Datei in reinem Python ohne Redis auswertet.
 
 ## 3. Testfälle und Ergebnisse
 
-### 3.1 Import (Aufgabe 2a)
+### Stufe 1 – Smoke (5/5)
+| ID | Testfall | Ergebnis |
+|---|---|---|
+| s01 | redis-py importierbar | ✅ |
+| s02 | alle 5 Skripte kompilieren | ✅ |
+| s03 | Fixture, Beispieldatei und `cli/aufgabe1.redis` vorhanden | ✅ |
+| s04 | `PING` → `PONG` | ✅ |
+| s05 | Serverversion lesbar | ✅ |
 
+### Stufe 2 – Unit (12/12)
 | ID | Testfall | Erwartet | Ergebnis |
 |---|---|---|---|
-| T01 | Anzahl importierter Datensätze, Leerzeilen ignorieren | 12 | ✅ |
-| T02 | `business:<id>` enthält den **unveränderten** JSON-String (inkl. Unicode) | identisch mit Quellzeile | ✅ |
-| T03 | Gesamtzahl der Keys | Betriebe + verschiedene Namen + 1 Index | ✅ |
+| u01 | JSON Lines lesen, Leerzeilen ignorieren; rohe Zeile = Objekt | 13 Einträge | ✅ |
+| u02 | Unicode korrekt gelesen | `Café Müller`, `寿司 Sushi Bar` | ✅ |
+| u03 | Beispieldatei (200 Datensätze) hat die Pflichtfelder | ja | ✅ |
+| u04–u06 | Namensschlüssel: Kleinschreibung, Unicode-Kleinschreibung, fehlender Name | `starbucks`, `café müller`, `""` | ✅ |
+| u07 | leeres Präfix | keine Abfrage | ✅ |
+| u08 | Grenzen für „Star“ | `[star` bis `[star` + Byte `0xFF` | ✅ |
+| u09 | **Eigenschaftstest**: Im Bereich liegen genau die Namen mit dem Präfix (9 Präfixe, inkl. CJK) | identisch mit `str.startswith` | ✅ |
+| u10 | Zeichen „ÿ“ als Schranke wäre falsch, Byte `0xFF` richtig | `[abc€` nur mit 0xFF im Bereich | ✅ |
+| u11–u12 | Details: Felder und Textausgabe | Adresse, Stadt, Sterne, „geschlossen“ | ✅ |
 
-### 3.2 Namens-Sets (Aufgabe 2b)
-
+### Stufe 3 – Integration (16/16)
 | ID | Testfall | Erwartet | Ergebnis |
 |---|---|---|---|
-| T04 | Key ist Name in Kleinbuchstaben, Typ `set`; `Starbucks` und `STARBUCKS` werden zusammengeführt | `{sb-1, sb-2, sb-3}` | ✅ |
-| T05 | Zweiter Import ohne `--flush` erzeugt keine Duplikate | `SCARD` und `ZCARD` unverändert | ✅ |
+| i01 | Import mit `batch_size=3` (mehrere Pipeline-Stapel) | 13 Datensätze | ✅ |
+| i02 | **jeder** `business:<id>` byte-genau gleich der Dateizeile (auch mit Unicode) | identisch | ✅ |
+| i03 | Anzahl Schlüssel | 13 + 11 Namen + 1 Index | ✅ |
+| i04 | 2 b: `Starbucks`/`STARBUCKS` in einem Set; Typ `set` | 3 ids | ✅ |
+| i05 | zweiter Import erzeugt keine Duplikate | unverändert | ✅ |
+| i06 | Betrieb ohne Namen: JSON gespeichert, aber nicht im Index | ja | ✅ |
+| i07–i09 | 2 c: „Star“, Groß- und Kleinschreibung, „The Sti“ | erwartete Listen | ✅ |
+| i10–i11 | kein Treffer, leere Eingabe, `limit` | `[]`, `[]`, 2 Treffer | ✅ |
+| i12 | Unicode-Präfixe `Café M`, `寿`, `pho ð` | je 1 Treffer | ✅ |
+| i13 | letzter Eintrag des Index; keine falschen Treffer | ja | ✅ |
+| i14–i15 | 2 d: „The Still“ → 2 Betriebe mit Adresse und Sternen; unbekannter Name → leer | ja | ✅ |
+| i16 | Beispieldatei mit 200 Datensätzen | 5 × starbucks, 3 Namen für „the sti“ | ✅ |
 
-### 3.3 Autovervollständigung (Aufgabe 2c)
-
-| ID | Eingabe | Erwartet | Ergebnis |
+### Stufe 4 – Effizienz (5/5)
+| ID | Testfall | Nachweis (`INFO commandstats`) | Ergebnis |
 |---|---|---|---|
-| T06 | `Star` | star pizza, starbucks, starbucks coffee | ✅ |
-| T07 | `sTaRbUcKs` (Groß-/Kleinschreibung egal) | starbucks, starbucks coffee | ✅ |
-| T08 | `The Sti` | the still, the stirling room | ✅ |
-| T09 | vollständiger Name `the still` | ist selbst enthalten | ✅ |
-| T10 | nicht vorhandener Präfix | leere Liste | ✅ |
-| T11 | leere Eingabe | leere Liste | ✅ |
-| T12 | `s` mit `limit=2` | genau 2 Treffer, sortiert | ✅ |
-| T13 | `Café M`, `寿`, `pho ð` (Unicode) | jeweils der passende Name | ✅ |
-| T14 | `starbucks` liefert nicht `star pizza`; `zzz` (Ende des Index) | keine falschen Treffer | ✅ |
+| l01 | `autocomplete("Star")` | genau `{zrangebylex: 1}` → 181 Namen | ✅ |
+| l02 | `details("Starbucks")` | genau `{smembers: 1, mget: 1}` → 1 066 Betriebe | ✅ |
+| l03 | vier Suchen | nie `KEYS`/`SCAN`; leeres Präfix ohne Anfrage | ✅ |
+| l04 | Gegenprobe ohne Index: `SCAN MATCH star*` | gleiches Ergebnis, aber 337 `SCAN`-Aufrufe; 195 ms statt 0,7 ms | ✅ |
+| l05 | Import von 13 Datensätzen mit `batch_size=5` | 3 Pipeline-Roundtrips statt ~36 Einzelbefehlen | ✅ |
 
-### 3.4 Details (Aufgabe 2d)
-
+### Stufe 5 – Datenintegrität (10/10)
 | ID | Testfall | Erwartet | Ergebnis |
 |---|---|---|---|
-| T15 | Details zu `The Still` | 2 Betriebe: Las Vegas 3,5★ (3400 S Las Vegas Blvd), Calgary 2,5★ | ✅ |
-| T16 | unbekannter Name | leere Liste | ✅ |
-| T17 | Textausgabe enthält Stadt und Sterne | „Calgary“, „3.5 Sterne“ | ✅ |
+| g01–g02 | Datensätze; `business_id` eindeutig | 192 609 (Aufgabenblatt: 209 393, andere Datensatzversion) | ✅ |
+| g03 | Anzahl Schlüssel | 192 609 + 144 337 + 1 = 336 947 | ✅ |
+| g04 | **alle** 192 609 JSON-Strings = Dateizeile | 0 Abweichungen | ✅ |
+| g05 | **alle** 144 337 Namens-Sets = Orakel | 0 Abweichungen | ✅ |
+| g06 | Index = Menge aller Namen | identisch | ✅ |
+| g07 | „Star“ | 181 Namen = Orakel, enthält *starlight nails & spa* | ✅ |
+| g08 | Starbucks | 1 066 (exakt) / 1 073 (mit Präfix) | ✅ |
+| g09 | „The Still“ / „The Sti“ | 2 / the still, the stirling club spa, the stirling room | ✅ |
+| g10 | Details „The Still“ | Calgary AB 2,5★; Las Vegas NV 3,5★ | ✅ |
 
-### 3.5 Synthetische Datei
+## 4. Wirksamkeit der Tests (Mutationstest)
 
-| ID | Testfall | Erwartet | Ergebnis |
-|---|---|---|---|
-| T18 | Import von 200 Datensätzen, `starbucks` inkl. `STARBUCKS`, Präfix `the sti` | 200 / 5 / 3 Namen | ✅ |
+| Mutation | Ergebnis |
+|---|---|
+| M1 obere Schranke als Zeichen „ÿ“ statt Byte `0xFF` | ❌ 6 Fehlschläge → erkannt |
+| M2 Namen nicht kleingeschrieben | ❌ 17 Fehlschläge → erkannt |
+| M3 Details mit einem `GET` pro Betrieb statt `MGET` | ❌ erkannt (l02) |
+| M4 JSON vor dem Speichern neu serialisiert (`json.dumps`) | **zunächst nicht erkannt** → Test i02 verschärft → ❌ erkannt |
+| M5 Betriebe ohne Namen werden indexiert | ❌ 3 Fehlschläge → erkannt |
+| M6 jeder Befehl einzeln statt im Pipeline-Stapel | ❌ erkannt (l05) |
 
-### 3.6 Echte Daten (`business.json`)
+**Erkenntnis aus M4:** Test i02 prüfte nur einen reinen ASCII-Datensatz, und für diesen liefert `json.dumps` zufällig denselben String. Jetzt prüft er jeden Fixture-Datensatz, auch mit Unicode, wo `json.dumps` `é` zu `é` macht. Damit erkennt ihn auch die Integrationsstufe und nicht erst die Integritätsprüfung auf bereits importierten Daten.
 
-| ID | Testfall | Erwartet | Ergebnis |
-|---|---|---|---|
-| T19 | Anzahl Datensätze | 192.609 | ✅ |
-| T20 | verschiedene Namen | 144.337 | ✅ |
-| T21 | Starbucks: exakter Name / alle mit Präfix | 1.066 / 1.073 | ✅ |
-| T22 | Präfix `Star` | 181 Namen | ✅ |
-| T23 | `The Still`: Anzahl, Präfix `The Sti`, Städte | 2; the still, the stirling club spa, the stirling room; Calgary + Las Vegas | ✅ |
-
-## 4. Während der Entwicklung gefundene und behobene Fehler
+## 5. Gefundene und behobene Probleme
 
 | Problem | Ursache | Lösung |
 |---|---|---|
-| Präfixsuche hätte Namen übersehen, bei denen nach dem Präfix ein Zeichen jenseits von U+00FF folgt | Obergrenze ursprünglich als Zeichen `'\xff'` (UTF-8: `C3 BF`) | Obergrenze als **Byte** `0xFF` angehängt; kommt in gültigem UTF-8 nie vor (abgesichert durch T13) |
-| `deploy.bat` brach unter Windows sofort ab („`﻿#` is not recognized“) | PowerShell-Skript hatte eine doppelte UTF-8-BOM | BOM normalisiert |
-| Deployment stoppte beim ersten `redis-cli ping` | Unter `ErrorActionPreference = Stop` wertet PowerShell 5.1 stderr-Ausgaben nativer Programme als Fehler; vor dem Serverstart schlägt `ping` aber erwartungsgemäß fehl | Fehlerbehandlung für native Befehle gelockert, Prüfung über `$LASTEXITCODE` |
-| **Verbindung zu Redis 5 schlägt fehl:** `unknown command 'HELLO'` (gefunden durch CI-Matrix Redis 5) | redis-py ≥ 8 nutzt standardmäßig das Protokoll RESP3 und sendet beim Verbinden `HELLO 3`; Redis < 6 kennt den Befehl nicht. Betraf das portable Redis 5.0.14 unter Windows (Import lieferte dort keine Ausgabe) | `connect()` erzwingt `protocol=2` (RESP2), kompatibel mit allen Redis-Versionen |
-| CI meldete fehlgeschlagene Tests als Erfolg | `unittest … \| tee` ohne `pipefail` übernimmt den Exit-Code von `tee` | `shell: bash` im Workflow (aktiviert `-o pipefail`) |
-| Datensatzzahl weicht von der Aufgabenstellung ab (192.609 statt 209.393) | Gelieferte Datei stammt aus einer anderen Version des Yelp-Datensatzes | kein Codefehler; in der Abgabe dokumentiert |
+| Verbindung zu Redis 5 scheitert (`unknown command 'HELLO'`) | redis-py ≥ 8 nutzt standardmäßig RESP3 | `protocol=2` in `connect()` (CI prüft Redis 5) |
+| CI meldete Erfolg, obwohl Stufe 4/5 übersprungen waren; dabei waren nur 200 Datensätze importiert | Die Zuordnung der beiden Sciebo-Links zu den Dateien war im Linux-Ablauf vertauscht; das Aufgabenblatt nennt keine Zuordnung | Zuordnung über die Dateigröße (wie im Windows-Skript) und Abbruch, wenn `business.json` < 10 MB ist; CI prüft jetzt ausdrücklich „48 von 48, 0 übersprungen“ |
+| `redis-cli` zeigt ohne Terminal `nil` als leere Zeile | nicht interaktiver Modus | Protokollskript schreibt `(nil)` wie in der interaktiven Sitzung |
+| Datensatzzahl weicht vom Aufgabenblatt ab (192 609 statt 209 393) | andere Version des Datensatzes | kein Codefehler; in Abgabe und Test g01 dokumentiert |
 
-## 5. Grenzen der Tests
+## 6. Grenzen
 
-- Der Testlauf dieses Berichts nutzt Redis 7.0.15 und einen minimalen RESP-Client statt redis-py. Die verwendeten Befehle (`SET`, `SADD`, `ZADD`, `ZRANGEBYLEX`, `MGET`, Pipelines) existieren unverändert seit Redis 2.8 und in redis-py; zur Bestätigung in Umgebung B `run_tests.bat` ausführen.
-- `autocomplete.py` (die `input()`-Schleife) wird nicht automatisch getestet; ihre Logik steckt in `autocomplete()` und `details()`, die vollständig abgedeckt sind. Ein manueller Durchlauf auf echten Daten liegt in `results/autocomplete_demo.txt`.
-- Aufgabe 1 (redis-cli) ist eine manuelle Übung; Befehle und Ausgaben stehen in `aufgabe1_redis_cli.md`.
+- Im Cloud-Container lief ein minimaler RESP2-Client statt redis-py. Mit dem echten redis-py 8.1.0 laufen die Tests in der CI und auf dem eigenen Rechner.
+- Laufzeitmessungen gelten für diesen Datensatz und zeigen die Größenordnung, keine Benchmark-Werte.
+- `autocomplete.py` (die `input()`-Schleife) wird nur über einen Demo-Durchlauf geprüft (`results/autocomplete_demo.txt`); die Logik liegt in den getesteten Funktionen.
 
-## 6. Continuous Integration
-
-Die Workflow-Datei `.github/workflows/praktikum1-tests.yml` führt bei jedem Push oder Pull Request auf `Praktikum1/**` die Testsuite automatisch aus:
-
-- Matrix: Python 3.10 / 3.13 × Redis 5 / 7 (offizielle Docker-Images als Service-Container), also 4 Jobs
-- Schritte: redis-py installieren → Syntaxprüfung → `unittest` → Smoke-Test (Strukturanalyse, Import, Autocomplete auf synthetischen Daten)
-- Die Testausgabe jedes Jobs wird als Artefakt gespeichert
-- `RealDataTests` werden dort übersprungen (`business.json` ist nicht eingecheckt); erwartet: 18 bestanden, 5 übersprungen
-
-Damit wird auch die Lücke aus Abschnitt 5 geschlossen: In CI laufen die Tests mit dem echten redis-py und zusätzlich gegen Redis 5, also dieselbe Hauptversion wie das portable Redis unter Windows.
-
-## 7. Tests ausführen
+## 7. Ausführen
 
 ```bat
-:: Windows (im Ordner Praktikum1, Redis wird bei Bedarf gestartet)
-run_tests.bat
+deploy.bat        :: kompletter Ablauf inkl. Tests (Windows, Docker Desktop)
+run_tests.bat     :: nur die Testkette
 ```
 
 ```bash
-# beliebiges System mit laufendem Redis auf localhost:6379
-python -m unittest discover -s tests -v
+bash scripts/run_praktikum1.sh    # Linux/macOS/CI
+python run_tests.py               # nur die Testkette
 ```

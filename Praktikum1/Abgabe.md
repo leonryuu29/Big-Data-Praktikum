@@ -2,6 +2,8 @@
 
 **Name:** Zhaoze Yu · **Matrikelnr.:** 50293014 · WS 2026/27
 
+Alle Ergebnisse stammen aus echten Läufen gegen das offizielle Docker-Image `redis:latest` (**Redis 8.10.3**) mit redis-py 8.1.0; zusätzlich geprüft gegen Redis 5. Protokolle in `results/`.
+
 ## Vorbereitung: Was bewirkt `docker run --name RedisPraktikum2026 -p 6379:6379 -it redis:latest`?
 
 - `docker run` erzeugt aus einem Image einen **neuen Container und startet ihn**. Ist das Image lokal nicht vorhanden, wird es zuvor von Docker Hub geladen (*pull*).
@@ -10,15 +12,18 @@
 - `-p 6379:6379` – Portweiterleitung *Host:Container*. Redis lauscht im Container auf Port 6379; erst durch das Mapping ist der Server vom Host aus (z. B. von Python über `localhost:6379`) erreichbar.
 - `-it` – `-i` hält STDIN offen, `-t` weist ein Pseudo-Terminal zu. Der Server läuft im Vordergrund, sein Log erscheint im Terminal, `Ctrl+C` beendet ihn.
 - Ohne `--rm` bleibt der Container nach dem Stoppen erhalten (`docker start -ai RedisPraktikum2026`). Ohne Volume (`-v`) liegen die Daten nur im Dateisystem des Containers und gehen mit `docker rm` verloren.
+- In den Skripten wird `-d` statt `-it` verwendet: Der Server läuft im Hintergrund, und dasselbe Terminal bleibt für Python frei. Die Kommandozeile erreicht man mit `docker exec -it RedisPraktikum2026 redis-cli`.
 
 ## Aufgabe 1: Fingerübungen
 
-Siehe `aufgabe1_redis_cli.md` (alle Befehle der vier Datentypen mit Ausgaben). Beobachtungen:
+Alle 82 Befehle der vier Datentypen stehen mit Kommentaren in `cli/aufgabe1.redis`, die echten Ausgaben in `aufgabe1_redis_cli.md`. Ausgeführt wurde in Datenbank 1, damit die Yelp-Daten in Datenbank 0 unberührt bleiben. Beobachtungen:
 
 - `GETSET`, `RPOPLPUSH`, `BRPOPLPUSH` sind seit Redis 6.2 *deprecated* (Ersatz: `SET … GET`, `LMOVE`, `BLMOVE`).
 - Blockierende Befehle (`BLPOP`, `BRPOP`) warten bis zum Timeout, wenn die Liste leer ist, und liefern dann `nil`.
 - `BITFIELD … INCRBY u8 0 100` auf 200 ergibt 44: Überlauf mit Standardverhalten `WRAP` (300 mod 256).
 - Sets sind ungeordnet; `SMEMBERS`/`SUNION` liefern keine feste Reihenfolge.
+- `INCR`/`INCRBY` sind atomar, denn Redis führt Befehle nacheinander aus. Ein Zähler braucht deshalb kein Lesen-Ändern-Schreiben im Client.
+- `SETNX`/`MSETNX` schreiben nur, wenn der Schlüssel fehlt (Rückgabe 0 = nichts geschrieben); `SETEX`/`PSETEX` setzen zusätzlich eine Ablaufzeit (`TTL`/`PTTL`).
 
 ## Aufgabe 2: Yelp-Business-Daten
 
@@ -31,14 +36,18 @@ Die gelieferte `business.json` enthält **192.609** Datensätze (nicht 209.393 w
 - `SET business:<business_id> <JSON-String>` (String)
 - `SADD <name in lowercase> <business_id>` (Set; gleichnamige Filialen landen automatisch in derselben Menge)
 - Import über eine **Pipeline** (`transaction=False`, je 5000 Datensätze), um die Netzwerk-Roundtrips drastisch zu reduzieren.
-- Ergebnis: **192.609** Datensätze → **336.947** Keys (192.609 `business:*` + 144.337 Namens-Sets + 1 Sorted Set), **144.337** verschiedene Namen, Speicherbedarf ca. 224 MB, Importdauer ca. 28 s.
+- Ergebnis: **192.609** Datensätze → **336.947** Keys (192.609 `business:*` + 144.337 Namens-Sets + 1 Sorted Set), **144.337** verschiedene Namen, Speicherbedarf ca. 188 MB (`used_memory_human`). Dank Pipeline dauert der Import nur wenige Sekunden; ohne Pipeline wären es rund 580 000 einzelne Netzwerk-Roundtrips.
+- Ein zweiter Import verändert nichts: `SET` überschreibt, `SADD`/`ZADD` ignorieren vorhandene Elemente.
+- Gespeichert wird die **unveränderte Zeile** aus der Datei. Ein erneutes `json.dumps` würde z. B. `é` als `\u00e9` speichern, also nicht mehr den Originalstring.
 
 ### c) Autovervollständigung
 Statt `KEYS`/`SCAN` (lineare Suche über alle Keys, `KEYS` blockiert den Server) werden alle Namen zusätzlich in einem Sorted Set `autocomplete:names` mit identischem Score 0 abgelegt. Bei gleichem Score sortiert Redis lexikografisch nach Bytes, sodass eine Präfixsuche einer Bereichsabfrage entspricht:
 
 `ZRANGEBYLEX autocomplete:names "[star" "[star\xff"` → Aufwand O(log N + M).
 
-Als obere Schranke dient das Byte `0xFF`, das in gültigem UTF-8 nie vorkommt; damit werden auch Namen mit Umlauten oder nicht-lateinischen Zeichen korrekt gefunden.
+Als obere Schranke dient das Byte `0xFF`, das in gültigem UTF-8 nie vorkommt; damit werden auch Namen mit Umlauten oder nicht-lateinischen Zeichen korrekt gefunden. Beispiel aus den echten Daten: Der letzte Treffer für „Star“ ist *star火bbq*. Das Zeichen „火“ (UTF-8 `E7 81 AB`) liegt hinter allen lateinischen Buchstaben, aber vor `0xFF`. Mit dem Zeichen „ÿ“ (UTF-8 `C3 BF`) als Schranke ginge dieser Name verloren.
+
+Die Funktion `autocomplete()` schickt genau **einen** Befehl an Redis und nie `KEYS` oder `SCAN` (gemessen mit `INFO commandstats`, Test l01/l03). Die Gegenprobe per `SCAN` über alle Schlüssel liefert dasselbe Ergebnis, braucht aber 337 `SCAN`-Aufrufe und rund 195 ms statt 0,7 ms, ist also etwa 260-mal langsamer (Test l04). Der Abstand wächst mit der Datenmenge: `SCAN` ist linear, die Bereichsabfrage logarithmisch.
 
 - Beispiel "Star": **181** Namen, u. a. *star anise, star bar, star burger, …, starbucks, starbucks coffee, starbucks reserve, …, starlight nails & spa*.
 - **Starbucks-Filialen:** unter dem exakten Namen `starbucks` sind **1.066** Einträge gelistet (davon 982 geöffnet, 84 geschlossen; v. a. AZ 264, ON 262, NV 183). Zählt man die Varianten *Starbucks Coffee* (6) und *Starbucks Reserve* (1) dazu, sind es **1.073**. Durch das Kleinschreiben werden Schreibweisen wie „STARBUCKS“ automatisch zusammengeführt.
@@ -46,7 +55,7 @@ Als obere Schranke dient das Byte `0xFF`, das in gültigem UTF-8 nie vorkommt; d
 - **Teilsuche "The Sti":** 3 Namen – *the still*, *the stirling club spa*, *the stirling room*. „the still“ erscheint dabei **nur einmal**, obwohl zwei Betriebe dahinterstehen, weil die Autovervollständigung Namen und nicht Betriebe liefert.
 
 ### d) Details
-Name → `SMEMBERS` → `MGET business:<id> …` (ein Roundtrip) → Ausgabe von Adresse und Sternen.
+Name → `SMEMBERS` → `MGET business:<id> …` → Ausgabe von Adresse und Sternen. Das sind genau zwei Befehle, unabhängig von der Anzahl der Betriebe; bei Starbucks werden 1 066 JSON-Strings mit einem einzigen `MGET` geholt (Test l02).
 
 **"The Still":**
 
@@ -58,3 +67,17 @@ Name → `SMEMBERS` → `MGET business:<id> …` (ein Roundtrip) → Ausgabe von
 **Bewertung:** Hinter dem Namen „The Still“ stehen zwei völlig verschiedene Betriebe in zwei Ländern (USA und Kanada), die nichts miteinander zu tun haben – keine Kette und keine Dubletten. Die Autovervollständigung zeigt aber nur *einen* Eintrag „the still“, und erst die Detailabfrage offenbart zwei unterschiedliche Adressen mit deutlich abweichenden Bewertungen (3,5 Sterne bei 257 Reviews vs. 2,5 Sterne bei nur 8 Reviews).
 
 Daraus folgt: Der Name ist **kein eindeutiger Identifikator**. Das Datenmodell „Name → Menge von IDs“ unterstellt, dass gleiche Namen zusammengehören. Bei Starbucks stimmt das (Filialen einer Kette), bei „The Still“ werden unabhängige Betriebe zusammengeworfen. Umgekehrt landen leicht abweichende Schreibweisen derselben Kette (z. B. „Starbucks Coffee“) oder Namen mit überzähligen Leerzeichen in getrennten Sets. „Anzahl Filialen = SCARD(name)“ ist daher nur eine Näherung. Für eine verlässliche Suche bräuchte man die Ortsangabe in der Ergebnisliste (z. B. „The Still – Las Vegas, NV“), eine Normalisierung der Namen (trimmen, Satzzeichen) und gegebenenfalls zusätzliche Indizes nach Stadt bzw. Bundesstaat.
+
+## Qualitätssicherung
+
+Testkette `run_tests.py` mit 48 Tests in 5 Stufen (Details im Testbericht `TESTBERICHT.md`):
+
+| Stufe | Tests | Inhalt | Ergebnis |
+|---|---:|---|---|
+| 1 Smoke | 5 | redis-py, PING, Version, Dateien, Kompilierung | ✅ |
+| 2 Unit | 12 | JSON Lines lesen, Kleinschreibung, Präfixgrenzen (inkl. 0xFF-Eigenschaft), Detailausgabe | ✅ |
+| 3 Integration | 16 | Import einer Fixture mit Sonderfällen in Datenbank 15, 2 a–d | ✅ |
+| 4 Effizienz | 5 | Befehle pro Funktion über `INFO commandstats`; Pipeline beim Import | ✅ |
+| 5 Integrität | 10 | alle 192 609 JSON-Strings und 144 337 Namens-Sets gegen die Datei; Antworten gegen eine unabhängige Berechnung | ✅ |
+
+Zusätzlich wurde ein Mutationstest durchgeführt: 6 absichtlich eingebaute Fehler werden alle erkannt. Außerdem läuft die Kette in der CI mit Python 3.10/3.13 × Redis 5/8, mit den Originaldaten von Sciebo.
