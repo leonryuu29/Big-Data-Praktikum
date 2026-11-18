@@ -24,6 +24,18 @@ Repository für die Praktika der Vorlesung Big Data (HSBI, WS 2026/27).
 - Infrastruktur (CI, Vorlagen): Branch `setup/<kurz>`.
 - Nie direkt auf `main` committen.
 
+## Testkette (Standard für jedes Praktikum)
+- `run_tests.py` führt 5 Stufen nacheinander aus; Abbruch, wenn der Smoke-Test fehlschlägt:
+  1. **Smoke** (`tests/test_0_smoke.py`) – Treiber, Server, Dateien, Kompilierung
+  2. **Unit** (`tests/test_1_unit.py`) – reine Logik ohne Datenbank, Sonderfälle in `tests/fixtures/`
+  3. **Integration** (`tests/test_2_integration.py`) – echter Server, eigener Test-Keyspace/DB, Schema aus den echten Skripten
+  4. **Lokalität/Effizienz** (`tests/test_3_locality.py`) – z. B. Query-Tracing: eine Partition pro Abfrage
+  5. **Integrität** (`tests/test_4_integrity.py`) – echte Daten Feld für Feld gegen die Quelle, Antworten gegen ein unabhängiges Orakel
+- Nach dem ersten grünen Lauf ein **Mutationstest** (gezielt Fehler einbauen, Erkennung prüfen) und ein Lauf in einem frischen Container.
+- Abgabe zusätzlich als PDF (`scripts/build_pdf.py`).
+
 ## Lokale Umgebung (Windows)
-- Kein Docker installiert; Redis läuft portabel (`PraktikumN/redis/`, Version 5.0.14). Code muss deshalb mit Redis 5 funktionieren (redis-py mit `protocol=2`).
-- Python 3.10.
+- **Docker Desktop** ist installiert (seit Praktikum 2). Praktikum 1 nutzt noch portables Redis 5.0.14 (`Praktikum1/redis/`); Code muss mit Redis 5 funktionieren (redis-py mit `protocol=2`).
+- Python 3.10.11.
+- Arbeitsordner der Praktika: `T:\新学期\大数据\Big_Data_Praktikum_N\`.
+- Einstieg immer per Doppelklick: `deploy.bat` (Ablauf + Tests), `run_tests.bat`, Ergebnisse in `results/local/`.
