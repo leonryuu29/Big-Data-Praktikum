@@ -1,5 +1,10 @@
--- Aufgabe 1: Fingerübungen nach dem Tutorial "Getting Started With Cassandra: Using CQL API and CQLSH"
--- Aufruf:  docker exec -it CassandraPraktikum2026 cqlsh -f /home/cassandra/cql/aufgabe1_person.cql
+-- =============================================================================
+-- Big Data – 2. Praktikum (HSBI, WS 2026/27) · Zhaoze Yu · Matrikelnr. 50293014
+-- Aufgabe 1: Fingerübungen (Keyspace k1, Tabelle person)
+-- Ausführen: docker exec -it CassandraPraktikum2026 cqlsh -f /home/cassandra/cql/aufgabe1_person.cql
+-- Reihenfolge: aufgabe1_person -> aufgabe3_schema -> aufgabe3_import -> aufgabe3_check -> (python denormalize.py) -> aufgabe3_query_tables -> aufgabe3_query_import -> aufgabe3_queries
+-- =============================================================================
+-- Grundlage: Tutorial "Getting Started With Cassandra: Using CQL API and CQLSH" (tutsplus)
 
 -- 1) Keyspace anlegen (wie im Tutorial: k1, SimpleStrategy, RF 1)
 CREATE KEYSPACE IF NOT EXISTS k1
