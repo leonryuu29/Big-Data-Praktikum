@@ -4,6 +4,9 @@
 
 ## Inhalt
 
+Das ILIAS-Paket (`python scripts/build_ilias_zip.py`) enthält nur den Kern: `Abgabe.pdf`, `cql/*.cql`, `movielens_cassandra.py`, `denormalize.py`, `answers.py` und `requirements.txt`. Alle übrigen Dateien (Tests, Protokolle, Screenshots) liegen im Repository.
+
+
 | Datei / Ordner | Inhalt | Aufgabe |
 |---|---|---|
 | `Abgabe.pdf` (Quelle `Abgabe.md`) | **Ausarbeitung**: alle Antworten, Screenshots, Notizen zu Aufgabe 2 im Anhang | 1–3 |

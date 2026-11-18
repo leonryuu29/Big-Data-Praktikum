@@ -1,7 +1,7 @@
 """Packt die ILIAS-Abgabe: Praktikum2_ZhaozeYu_50293014.zip
 
-Enthält nur, was für die Bewertung nötig ist (Ausarbeitung, CQL, Python-Code, Nachweise, Tests).
-Werkzeuge für Windows/CI (bat, ps1, sh, Screenshot-/PDF-Erzeugung) bleiben draußen.
+Nur der Kern: Ausarbeitung (PDF), die CQL-Skripte und der Python-Code.
+Tests, Protokolle, Screenshots und Werkzeuge bleiben im Repository.
 Aufruf:  python scripts/build_ilias_zip.py
 """
 import glob
@@ -12,11 +12,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NAME = "Praktikum2_ZhaozeYu_50293014"
 
 FILES = [
-    "LIESMICH.md", "Abgabe.pdf", "Abgabe.md", "TESTBERICHT.pdf", "TESTBERICHT.md",
-    "movielens_cassandra.py", "denormalize.py", "answers.py", "run_tests.py", "requirements.txt",
-    "cql/*.cql", "docs/aufgabe2_notizen.md", "docs/screenshots/*.png",
-    "results/*.txt", "results/windows/*.txt",
-    "tests/*.py", "tests/fixtures/*.csv",
+    "Abgabe.pdf",                                              # Ausarbeitung mit allen Antworten
+    "cql/*.cql",                                               # Aufgabe 1 und 3 a-f
+    "movielens_cassandra.py", "denormalize.py", "answers.py",  # Aufgabe 3
+    "requirements.txt",
 ]
 
 
