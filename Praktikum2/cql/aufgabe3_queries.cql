@@ -1,4 +1,9 @@
--- Aufgabe 3 e) + f): Abfragen (jeweils genau eine Partition)
+-- =============================================================================
+-- Big Data – 2. Praktikum (HSBI, WS 2026/27) · Zhaoze Yu · Matrikelnr. 50293014
+-- Aufgabe 3 e) + f): Abfragen und Gegenprobe
+-- Ausführen: docker exec -it CassandraPraktikum2026 cqlsh -f /home/cassandra/cql/aufgabe3_queries.cql
+-- Reihenfolge: aufgabe1_person -> aufgabe3_schema -> aufgabe3_import -> aufgabe3_check -> (python denormalize.py) -> aufgabe3_query_tables -> aufgabe3_query_import -> aufgabe3_queries
+-- =============================================================================
 USE movielens;
 
 -- e) Die ersten 5 Filme (alphabetisch), die Nutzy 42 bewertet hat
