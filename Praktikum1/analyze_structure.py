@@ -1,4 +1,5 @@
 """
+Big Data – 1. Praktikum (HSBI, WS 2026/27) · Zhaoze Yu · Matrikelnr. 50293014
 Aufgabe 2 (Vorarbeit): Struktur der Datei business.json / businessS.json analysieren.
 
 Aufruf:  python analyze_structure.py data/businessS.json

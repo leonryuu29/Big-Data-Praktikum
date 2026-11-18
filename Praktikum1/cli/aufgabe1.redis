@@ -1,0 +1,107 @@
+# =============================================================================
+# Big Data – 1. Praktikum (HSBI, WS 2026/27) · Zhaoze Yu · Matrikelnr. 50293014
+# Aufgabe 1: Fingerübungen mit redis-cli (Strings, Lists, Sets, Hashes)
+# Ausführen (Datenbank 1, damit die Yelp-Daten in db 0 unberührt bleiben):
+#   interaktiv:   docker exec -it RedisPraktikum2026 redis-cli -n 1
+#   protokolliert: python scripts/record_session.py cli/aufgabe1.redis results/aufgabe1_session.txt
+# Zeilen mit # sind Kommentare und werden nicht an Redis geschickt.
+# =============================================================================
+FLUSHDB
+
+# ---- Strings: Text, Zahlen und Bits unter einem Schlüssel ----------------------
+SET greeting "Hello"
+APPEND greeting " Redis"
+GET greeting
+STRLEN greeting
+GETRANGE greeting 0 4
+SETRANGE greeting 6 "World"
+GET greeting
+# Zähler: INCR/DECR sind atomar (kein Lesen-Ändern-Schreiben im Client nötig)
+SET counter 10
+INCR counter
+INCRBY counter 5
+DECR counter
+DECRBY counter 3
+INCRBYFLOAT counter 0.5
+# GETSET: alten Wert lesen und neuen setzen (seit Redis 6.2 veraltet -> SET ... GET)
+GETSET counter 0
+# mehrere Schlüssel auf einmal; MSETNX/SETNX schreiben nur, wenn der Schlüssel fehlt
+MSET k1 "a" k2 "b"
+MGET k1 k2 nokey
+MSETNX k1 "x" k3 "c"
+SETNX k1 "y"
+# Ablaufzeit: SETEX in Sekunden, PSETEX in Millisekunden
+SETEX temp 60 "tmp"
+TTL temp
+PSETEX ptemp 5000 "ptmp"
+PTTL ptemp
+# Bit-Operationen auf dem Byte-Inhalt eines Strings
+SETBIT bits 7 1
+GETBIT bits 7
+BITCOUNT bits
+BITPOS bits 1
+SET a "abc"
+SET b "ABC"
+BITOP AND res a b
+GET res
+# BITFIELD: 200 + 100 im 8-Bit-Feld läuft über (WRAP) -> 44
+BITFIELD bf SET u8 0 200 GET u8 0 INCRBY u8 0 100
+
+# ---- Lists: geordnete Folge, Zugriff von beiden Enden ---------------------------
+RPUSH mylist a b c
+LPUSH mylist z
+LRANGE mylist 0 -1
+LLEN mylist
+LINDEX mylist 1
+LINSERT mylist BEFORE c b2
+LSET mylist 0 Z
+LREM mylist 1 b2
+# *X-Varianten schreiben nur in bereits existierende Listen
+LPUSHX nolist x
+RPUSHX mylist d
+LRANGE mylist 0 -1
+LTRIM mylist 0 3
+LPOP mylist
+RPOP mylist
+# RPOPLPUSH: Element von einer Liste in die andere verschieben (veraltet -> LMOVE)
+RPOPLPUSH mylist otherlist
+LRANGE otherlist 0 -1
+# blockierende Varianten: warten bis zu 1 s auf ein Element
+BLPOP mylist 1
+BRPOP mylist 1
+BRPOPLPUSH otherlist mylist 1
+LRANGE mylist 0 -1
+
+# ---- Sets: ungeordnet, jedes Element höchstens einmal (Grundlage für 2 b) ---------
+SADD s1 a b c d
+SADD s2 c d e
+SCARD s1
+SISMEMBER s1 a
+SINTER s1 s2
+SUNION s1 s2
+SDIFF s1 s2
+SINTERSTORE s3 s1 s2
+SUNIONSTORE s4 s1 s2
+SDIFFSTORE s5 s1 s2
+SMOVE s1 s2 a
+SREM s2 e
+SMEMBERS s2
+SRANDMEMBER s4 2
+SPOP s5
+SSCAN s4 0 MATCH *
+
+# ---- Hashes: Feld-Wert-Paare unter einem Schlüssel (wie ein kleines Objekt) --------
+HSET user:1 name "Ada" age 36 city "London"
+HGET user:1 name
+HMGET user:1 name city nofield
+HGETALL user:1
+HEXISTS user:1 age
+HINCRBY user:1 age 1
+HINCRBYFLOAT user:1 age 0.5
+HSETNX user:1 name "Bob"
+HSTRLEN user:1 name
+HKEYS user:1
+HVALS user:1
+HLEN user:1
+HDEL user:1 city
+HSCAN user:1 0

@@ -1,35 +1,113 @@
-test_01_import_count (test_yelp_redis.FixtureTests.test_01_import_count)
-Alle Zeilen werden importiert, Leerzeilen ignoriert. ... ok
-test_02_business_key_holds_original_json (test_yelp_redis.FixtureTests.test_02_business_key_holds_original_json)
-2a: business:<id> enthält den unveränderten JSON-String. ... ok
-test_03_key_count (test_yelp_redis.FixtureTests.test_03_key_count)
-Keys = Betriebe + verschiedene Namen + 1 Autocomplete-Index. ... ok
-test_04_name_set_lowercase_and_merged (test_yelp_redis.FixtureTests.test_04_name_set_lowercase_and_merged)
-2b: Name lowercase als Key; Groß-/Kleinschreibung wird zusammengeführt. ... ok
-test_05_reimport_is_idempotent (test_yelp_redis.FixtureTests.test_05_reimport_is_idempotent)
-Erneuter Import ohne --flush erzeugt keine Duplikate (Set-Semantik). ... ok
-test_06_prefix_star (test_yelp_redis.FixtureTests.test_06_prefix_star) ... ok
-test_07_prefix_case_insensitive (test_yelp_redis.FixtureTests.test_07_prefix_case_insensitive) ... ok
-test_08_prefix_the_sti (test_yelp_redis.FixtureTests.test_08_prefix_the_sti) ... ok
-test_09_exact_name_is_included (test_yelp_redis.FixtureTests.test_09_exact_name_is_included) ... ok
-test_10_no_match (test_yelp_redis.FixtureTests.test_10_no_match) ... ok
-test_11_empty_prefix (test_yelp_redis.FixtureTests.test_11_empty_prefix) ... ok
-test_12_limit (test_yelp_redis.FixtureTests.test_12_limit) ... ok
-test_13_unicode_prefixes (test_yelp_redis.FixtureTests.test_13_unicode_prefixes)
-Umlaute, CJK und vietnamesische Zeichen werden korrekt gefunden. ... ok
-test_14_no_false_positive_after_prefix (test_yelp_redis.FixtureTests.test_14_no_false_positive_after_prefix)
-'starbucks' darf nicht 'star pizza' liefern, 'zzz' nur sich selbst. ... ok
-test_15_details_the_still (test_yelp_redis.FixtureTests.test_15_details_the_still) ... ok
-test_16_details_unknown_name (test_yelp_redis.FixtureTests.test_16_details_unknown_name) ... ok
-test_17_format_details (test_yelp_redis.FixtureTests.test_17_format_details) ... ok
-test_distinct_names (test_yelp_redis.RealDataTests.test_distinct_names) ... ok
-test_record_count (test_yelp_redis.RealDataTests.test_record_count) ... ok
-test_star_prefix (test_yelp_redis.RealDataTests.test_star_prefix) ... ok
-test_starbucks (test_yelp_redis.RealDataTests.test_starbucks) ... ok
-test_the_still (test_yelp_redis.RealDataTests.test_the_still) ... ok
-test_synthetic_file (test_yelp_redis.SyntheticFileTests.test_synthetic_file) ... ok
+
+======================================================================
+Stufe 1 Smoke  (test_0_smoke.py)
+======================================================================
+test_s01_package_importable (test_0_smoke.SmokeTests.test_s01_package_importable) ... ok
+test_s02_scripts_compile (test_0_smoke.SmokeTests.test_s02_scripts_compile) ... ok
+test_s03_files_present (test_0_smoke.SmokeTests.test_s03_files_present) ... ok
+test_s04_server_ping (test_0_smoke.SmokeTests.test_s04_server_ping) ... ok
+test_s05_server_version (test_0_smoke.SmokeTests.test_s05_server_version) ... ok
 
 ----------------------------------------------------------------------
-Ran 23 tests in 25.767s
+Ran 5 tests in 0.009s
 
 OK
+
+======================================================================
+Stufe 2 Unit  (test_1_unit.py)
+======================================================================
+test_u11_summarize (test_1_unit.DetailsTests.test_u11_summarize) ... ok
+test_u12_format_details (test_1_unit.DetailsTests.test_u12_format_details) ... ok
+test_u04_lowercase (test_1_unit.NameKeyTests.test_u04_lowercase) ... ok
+test_u05_unicode_lowercase (test_1_unit.NameKeyTests.test_u05_unicode_lowercase) ... ok
+test_u06_missing_name (test_1_unit.NameKeyTests.test_u06_missing_name) ... ok
+test_u07_empty_prefix (test_1_unit.PrefixRangeTests.test_u07_empty_prefix) ... ok
+test_u08_bounds (test_1_unit.PrefixRangeTests.test_u08_bounds) ... ok
+test_u09_matches_exactly_the_prefix_names (test_1_unit.PrefixRangeTests.test_u09_matches_exactly_the_prefix_names)
+Eigenschaft: im Bereich liegen genau die Namen, die mit dem Präfix beginnen. ... ok
+test_u10_byte_ff_needed (test_1_unit.PrefixRangeTests.test_u10_byte_ff_needed)
+Mit dem Zeichen 'ÿ' (UTF-8 C3 BF) statt des Bytes 0xFF ginge z. B. 'abc€…' verloren. ... ok
+test_u01_json_lines_and_blank_lines (test_1_unit.ReadFileTests.test_u01_json_lines_and_blank_lines) ... ok
+test_u02_unicode_read_correctly (test_1_unit.ReadFileTests.test_u02_unicode_read_correctly) ... ok
+test_u03_synthetic_file_structure (test_1_unit.ReadFileTests.test_u03_synthetic_file_structure) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.003s
+
+OK
+
+======================================================================
+Stufe 3 Integration  (test_2_integration.py)
+======================================================================
+test_i01_import_count (test_2_integration.IntegrationTests.test_i01_import_count) ... ok
+test_i02_business_key_holds_original_json (test_2_integration.IntegrationTests.test_i02_business_key_holds_original_json)
+Jeder Eintrag byte-genau wie in der Datei – auch mit Umlauten/CJK (kein json.dumps-Umbau, ... ok
+test_i03_key_count (test_2_integration.IntegrationTests.test_i03_key_count)
+Keys = 13 Betriebe + 11 Namen + 1 Index (der Betrieb ohne Namen bekommt kein Set). ... ok
+test_i04_name_set_lowercase_and_merged (test_2_integration.IntegrationTests.test_i04_name_set_lowercase_and_merged) ... ok
+test_i05_reimport_is_idempotent (test_2_integration.IntegrationTests.test_i05_reimport_is_idempotent) ... ok
+test_i06_empty_name_not_indexed (test_2_integration.IntegrationTests.test_i06_empty_name_not_indexed) ... ok
+test_i07_prefix_star (test_2_integration.IntegrationTests.test_i07_prefix_star) ... ok
+test_i08_case_insensitive (test_2_integration.IntegrationTests.test_i08_case_insensitive) ... ok
+test_i09_the_sti (test_2_integration.IntegrationTests.test_i09_the_sti) ... ok
+test_i10_no_match_and_empty (test_2_integration.IntegrationTests.test_i10_no_match_and_empty) ... ok
+test_i11_limit (test_2_integration.IntegrationTests.test_i11_limit) ... ok
+test_i12_unicode (test_2_integration.IntegrationTests.test_i12_unicode) ... ok
+test_i13_last_entry_and_no_false_positive (test_2_integration.IntegrationTests.test_i13_last_entry_and_no_false_positive) ... ok
+test_i14_details_the_still (test_2_integration.IntegrationTests.test_i14_details_the_still) ... ok
+test_i15_details_unknown (test_2_integration.IntegrationTests.test_i15_details_unknown) ... ok
+test_i16_synthetic_file (test_2_integration.SyntheticFileTests.test_i16_synthetic_file) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.014s
+
+OK
+
+======================================================================
+Stufe 4 Effizienz  (test_3_locality.py)
+======================================================================
+test_l01_autocomplete_single_zrangebylex (test_3_locality.EfficiencyTests.test_l01_autocomplete_single_zrangebylex) ... ok
+test_l02_details_two_commands (test_3_locality.EfficiencyTests.test_l02_details_two_commands) ... ok
+test_l03_no_keys_or_scan_anywhere (test_3_locality.EfficiencyTests.test_l03_no_keys_or_scan_anywhere) ... ok
+test_l04_scan_alternative_is_much_more_work (test_3_locality.EfficiencyTests.test_l04_scan_alternative_is_much_more_work)
+Gegenprobe ohne Index: gleiches Ergebnis, aber ein Scan über alle Schlüssel. ... ok
+test_l05_import_uses_pipeline (test_3_locality.EfficiencyTests.test_l05_import_uses_pipeline)
+Import der Fixture (13 Betriebe) mit batch_size=5: 3 Roundtrips statt ~36. ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.247s
+
+OK
+
+======================================================================
+Stufe 5 Integrität  (test_4_integrity.py)
+======================================================================
+test_g01_record_count (test_4_integrity.IntegrityTests.test_g01_record_count)
+192 609 Datensätze (Aufgabenblatt nennt 209 393 – andere Version des Datensatzes). ... ok
+test_g02_unique_business_ids (test_4_integrity.IntegrityTests.test_g02_unique_business_ids) ... ok
+test_g03_key_count (test_4_integrity.IntegrityTests.test_g03_key_count)
+Keys = Betriebe + verschiedene Namen + 1 Index. ... ok
+test_g04_every_json_string_identical (test_4_integrity.IntegrityTests.test_g04_every_json_string_identical) ... ok
+test_g05_every_name_set_identical (test_4_integrity.IntegrityTests.test_g05_every_name_set_identical) ... ok
+test_g06_index_equals_names (test_4_integrity.IntegrityTests.test_g06_index_equals_names) ... ok
+test_g07_star_prefix (test_4_integrity.IntegrityTests.test_g07_star_prefix) ... ok
+test_g08_starbucks (test_4_integrity.IntegrityTests.test_g08_starbucks) ... ok
+test_g09_the_still (test_4_integrity.IntegrityTests.test_g09_the_still) ... ok
+test_g10_details_the_still (test_4_integrity.IntegrityTests.test_g10_details_the_still) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 4.810s
+
+OK
+
+======================================================================
+Zusammenfassung
+======================================================================
+Stufe            Tests    ok  Fehler  skip     Zeit
+1 Smoke              5     5       0     0    0.01s
+2 Unit              12    12       0     0    0.00s
+3 Integration       16    16       0     0    0.01s
+4 Effizienz          5     5       0     0    0.25s
+5 Integrität        10    10       0     0    4.81s
+Gesamt              48    48       0     0
+ERGEBNIS: BESTANDEN

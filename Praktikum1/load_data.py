@@ -1,5 +1,6 @@
 """
-Aufgabe 2a + 2b: business.json in die lokale Redis-Instanz schreiben.
+Big Data – 1. Praktikum (HSBI, WS 2026/27) · Zhaoze Yu · Matrikelnr. 50293014
+Aufgabe 2 a + b: business.json in die lokale Redis-Instanz schreiben (Datenbank 0).
 
 Aufruf:
   python load_data.py data/businessS.json --flush      # Test mit 200 Datensätzen

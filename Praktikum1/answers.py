@@ -1,5 +1,6 @@
 """
-Beantwortet die konkreten Fragen aus Aufgabe 2c/2d automatisch
+Big Data – 1. Praktikum (HSBI, WS 2026/27) · Zhaoze Yu · Matrikelnr. 50293014
+Aufgabe 2 c + d: beantwortet die konkreten Fragen des Aufgabenblatts.
 (nach dem Import mit load_data.py ausführen).
 
 Aufruf:  python answers.py

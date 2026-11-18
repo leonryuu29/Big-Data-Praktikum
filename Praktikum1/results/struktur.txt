@@ -1,4 +1,4 @@
-Datei: /mnt/user-data/uploads/Downloads/businessS.json
+Datei: data/businessS.json
 Format: JSON Lines (ein JSON-Objekt pro Zeile, KEIN JSON-Array)
 Anzahl Datensätze: 200
 

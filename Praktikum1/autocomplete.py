@@ -1,5 +1,6 @@
 """
-Aufgabe 2c + 2d: Autovervollständigung mit einfacher input()-Schleife.
+Big Data – 1. Praktikum (HSBI, WS 2026/27) · Zhaoze Yu · Matrikelnr. 50293014
+Aufgabe 2 c + d: Autovervollständigung mit einfacher input()-Schleife.
 
 Ablauf:
   1. Präfix eingeben (z. B. "Star")  -> alle passenden Namen mit Anzahl Filialen

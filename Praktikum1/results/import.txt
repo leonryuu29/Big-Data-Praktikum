@@ -37,6 +37,6 @@
    185000 Datensätze importiert ...
    190000 Datensätze importiert ...
 Fertig: 192609 Datensätze importiert.
-Dauer: 27.9 s  (6901 Datensätze/s)
+Dauer: 5.9 s  (32800 Datensätze/s)
 Keys in Redis: 336947
 Verschiedene Namen im Autocomplete-Index: 144337
