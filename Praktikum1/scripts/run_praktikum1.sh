@@ -27,9 +27,15 @@ step "2/8 Python-Paket redis-py"
 
 step "3/8 Daten"
 if [ ! -s data/business.json ] || [ ! -s data/businessS.json ]; then
-  curl -fsSL -o data/business.json  https://hsbi.sciebo.de/s/REoBXKjpLjViIbJ/download
-  curl -fsSL -o data/businessS.json https://hsbi.sciebo.de/s/KYRLLYOItgJ3Ulp/download
+  # Welcher Link welche Datei liefert, steht nicht im Aufgabenblatt -> Zuordnung über die Größe
+  # (business.json ~135 MB, businessS.json ~143 kB), genau wie scripts/download_data.ps1
+  for u in https://hsbi.sciebo.de/s/REoBXKjpLjViIbJ/download https://hsbi.sciebo.de/s/KYRLLYOItgJ3Ulp/download; do
+    curl -fsSL -o data/download.tmp "$u"
+    if [ "$(wc -c < data/download.tmp)" -gt 10000000 ]; then mv data/download.tmp data/business.json
+    else mv data/download.tmp data/businessS.json; fi
+  done
 fi
+[ "$(wc -c < data/business.json)" -gt 10000000 ] || { echo "data/business.json ist nicht die vollständige Datei"; exit 1; }
 ls -l data/business.json data/businessS.json
 
 step "4/8 Aufgabe 1 (redis-cli, Datenbank 1)"
