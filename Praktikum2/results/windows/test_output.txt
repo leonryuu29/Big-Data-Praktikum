@@ -1,0 +1,122 @@
+
+======================================================================
+Stufe 1 Smoke  (test_0_smoke.py)
+======================================================================
+test_s01_driver_importable (test_0_smoke.SmokeTests) ... ok
+test_s02_cql_files_present (test_0_smoke.SmokeTests) ... ok
+test_s03_scripts_compile (test_0_smoke.SmokeTests) ... ok
+test_s04_cassandra_reachable (test_0_smoke.SmokeTests) ... ok
+test_s05_simple_roundtrip (test_0_smoke.SmokeTests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 3.091s
+
+OK
+
+======================================================================
+Stufe 2 Unit  (test_1_unit.py)
+======================================================================
+test_u13_headers_match_copy (test_1_unit.CodeMatchesCqlTests) ... ok
+test_u14_base_copy_matches_csv_order (test_1_unit.CodeMatchesCqlTests) ... ok
+test_u15_every_copy_with_quotes_uses_escape (test_1_unit.CodeMatchesCqlTests)
+Titel mit "" brauchen ESCAPE = '"' (sonst bleibt ein " am Ende stehen). ... ok
+test_u16_cql_files_parse (test_1_unit.CodeMatchesCqlTests) ... ok
+test_u01_counts (test_1_unit.CsvReadTests) ... ok
+test_u02_types (test_1_unit.CsvReadTests) ... ok
+test_u03_title_with_comma (test_1_unit.CsvReadTests) ... ok
+test_u04_title_with_doubled_quotes (test_1_unit.CsvReadTests)
+CSV '""' wird beim Lesen zu einem einzelnen Anführungszeichen. ... ok
+test_u05_unicode (test_1_unit.CsvReadTests) ... ok
+test_u06_genres_as_plain_text (test_1_unit.CsvReadTests) ... ok
+test_u12_roundtrip_special_titles (test_1_unit.CsvWriteTests) ... ok
+test_u07_orphan_rating_dropped (test_1_unit.DenormalizeTests)
+Bewertung von Film 999 (nicht in movies.csv) wird verworfen. ... ok
+test_u08_join_adds_title (test_1_unit.DenormalizeTests) ... ok
+test_u09_duplicate_titles_kept_apart (test_1_unit.DenormalizeTests)
+Zwei Filme 'Emma (1996)' bleiben zwei Zeilen (movie_id unterscheidet sie). ... ok
+test_u10_by_title_covers_all_movies (test_1_unit.DenormalizeTests) ... ok
+test_u11_by_user_and_by_movie_same_facts (test_1_unit.DenormalizeTests) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.004s
+
+OK
+
+======================================================================
+Stufe 3 Integration  (test_2_integration.py)
+======================================================================
+test_i01_schema_from_cql_files (test_2_integration.IntegrationTests) ... ok
+test_i02_clustering_order_declared (test_2_integration.IntegrationTests) ... ok
+test_i03_static_title (test_2_integration.IntegrationTests) ... ok
+test_i04_first_rows_limit (test_2_integration.IntegrationTests) ... ok
+test_i05_first_rows_rejects_unknown_table (test_2_integration.IntegrationTests) ... ok
+test_i06_movies_rated_by_alphabetical (test_2_integration.IntegrationTests) ... ok
+test_i07_duplicate_titles_both_returned (test_2_integration.IntegrationTests) ... ok
+test_i08_limit_first_five (test_2_integration.IntegrationTests) ... ok
+test_i09_unknown_user_empty (test_2_integration.IntegrationTests) ... ok
+test_i10_users_who_rated_sorted (test_2_integration.IntegrationTests) ... ok
+test_i11_title_lookup_duplicates (test_2_integration.IntegrationTests) ... ok
+test_i12_title_lookup_is_exact (test_2_integration.IntegrationTests)
+Partition Keys vergleichen exakt: falsche Groß-/Kleinschreibung findet nichts. ... ok
+test_i13_insert_is_upsert (test_2_integration.IntegrationTests)
+INSERT mit vorhandenem Primärschlüssel überschreibt (kein Fehler, kein Duplikat). ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 3.507s
+
+OK
+
+======================================================================
+Stufe 4 Lokalität  (test_3_locality.py)
+======================================================================
+test_l01_q1_movies_by_user_single_partition (test_3_locality.LocalityTests) ... ok
+test_l02_q2_users_by_movie_single_partition (test_3_locality.LocalityTests) ... ok
+test_l03_title_lookup_single_partition (test_3_locality.LocalityTests) ... ok
+test_l04_base_table_by_movie_rejected (test_3_locality.LocalityTests) ... ok
+test_l05_allow_filtering_is_a_scan (test_3_locality.LocalityTests) ... ok
+test_l06_order_by_other_column_rejected (test_3_locality.LocalityTests)
+Sortierung ist nur nach Clustering Columns möglich – deshalb title als Clustering Column. ... ok
+test_l07_partition_size_reasonable (test_3_locality.LocalityTests)
+Größte Partition von movies_by_user (Nutzy mit den meisten Bewertungen) bleibt klein. ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.734s
+
+OK
+
+======================================================================
+Stufe 5 Integrität  (test_4_integrity.py)
+======================================================================
+test_g01_dataset_matches_readme (test_4_integrity.IntegrityTests)
+README von ml-latest-small: 100836 Bewertungen, 9742 Filme, 610 Nutzys. ... ok
+test_g02_row_counts (test_4_integrity.IntegrityTests) ... ok
+test_g03_movies_field_by_field (test_4_integrity.IntegrityTests) ... ok
+test_g04_ratings_field_by_field (test_4_integrity.IntegrityTests) ... ok
+test_g05_movies_by_user_equals_join (test_4_integrity.IntegrityTests) ... ok
+test_g06_users_by_movie_equals_join (test_4_integrity.IntegrityTests) ... ok
+test_g07_movies_by_title_equals_movies (test_4_integrity.IntegrityTests) ... ok
+test_g08_special_titles_intact (test_4_integrity.IntegrityTests)
+Titel mit "" (ESCAPE-Fall), Komma und Unicode kommen unverändert an. ... ok
+test_g09_every_rating_references_a_movie (test_4_integrity.IntegrityTests) ... ok
+test_g10_rating_range (test_4_integrity.IntegrityTests) ... ok
+test_g11_no_lost_rows_through_duplicate_titles (test_4_integrity.IntegrityTests)
+5 doppelte Titel: dank movie_id im Primärschlüssel geht keine Bewertung verloren. ... ok
+test_g12_answer_e_user_42 (test_4_integrity.IntegrityTests) ... ok
+test_g13_answer_f_toy_story (test_4_integrity.IntegrityTests) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 6.574s
+
+OK
+
+======================================================================
+Zusammenfassung
+======================================================================
+Stufe            Tests    ok  Fehler  skip     Zeit
+1 Smoke              5     5       0     0    3.09s
+2 Unit              16    16       0     0    0.00s
+3 Integration       13    13       0     0    3.51s
+4 Lokalität          7     7       0     0    0.73s
+5 Integrität        13    13       0     0    6.57s
+Gesamt              54    54       0     0
+ERGEBNIS: BESTANDEN

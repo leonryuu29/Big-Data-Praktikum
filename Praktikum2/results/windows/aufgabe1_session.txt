@@ -1,0 +1,67 @@
+cqlsh> CREATE KEYSPACE IF NOT EXISTS k1
+   ...   WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}
+   ...   AND durable_writes = true;
+
+cqlsh> USE k1;
+
+cqlsh:k1> DROP TABLE IF EXISTS person;
+
+cqlsh:k1> CREATE TABLE person (
+   ...   id text,
+   ...   name text,
+   ...   surname text,
+   ...   PRIMARY KEY (id)
+   ... );
+
+cqlsh:k1> ALTER TABLE person ADD email text;
+
+cqlsh:k1> DESCRIBE TABLE person;
+CREATE TABLE k1.person (
+    id text PRIMARY KEY,
+    email text,
+    name text,
+    surname text
+) WITH additional_write_policy = '99p'
+    AND allow_auto_snapshot = true
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = {'keys': 'ALL', 'rows_per_partition': 'NONE'}
+    AND cdc = false
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold': '32', 'min_threshold': '4'}
+    AND compression = {'chunk_length_in_kb': '16', 'class': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND memtable = 'default'
+    AND crc_check_chance = 1.0
+    AND default_time_to_live = 0
+    AND extensions = {}
+    AND gc_grace_seconds = 864000
+    AND incremental_backups = true
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair = 'BLOCKING'
+    AND speculative_retry = '99p';
+
+cqlsh:k1> INSERT INTO person (id, name, surname, email) VALUES ('001', 'Ada', 'Lovelace', 'ada@example.com');
+
+cqlsh:k1> INSERT INTO person (id, name, surname, email) VALUES ('002', 'Alan', 'Turing', 'alan@example.com');
+
+cqlsh:k1> INSERT INTO person (id, name, surname, email) VALUES ('003', 'Grace', 'Hopper', 'grace@example.com');
+
+cqlsh:k1> SELECT * FROM person WHERE id = '002';
+ id  | email            | name | surname
+-----+------------------+------+---------
+ 002 | alan@example.com | Alan |  Turing
+
+(1 rows)
+
+cqlsh:k1> SELECT * FROM person;
+ id  | email             | name  | surname
+-----+-------------------+-------+----------
+ 002 |  alan@example.com |  Alan |   Turing
+ 001 |   ada@example.com |   Ada | Lovelace
+ 003 | grace@example.com | Grace |   Hopper
+
+(3 rows)
+
+cqlsh:k1> SELECT * FROM person WHERE surname = 'Hopper';
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Cannot execute this query as it might involve data filtering and thus may have unpredictable performance. If you want to execute this query despite the performance unpredictability, use ALLOW FILTERING"

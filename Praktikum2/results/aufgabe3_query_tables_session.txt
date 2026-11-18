@@ -1,0 +1,26 @@
+cqlsh> USE movielens;
+
+cqlsh:movielens> CREATE TABLE IF NOT EXISTS movies_by_user (
+   ...   user_id  int,
+   ...   title    text,
+   ...   movie_id int,
+   ...   rating   float,
+   ...   rated_at bigint,
+   ...   PRIMARY KEY ((user_id), title, movie_id)
+   ... ) WITH CLUSTERING ORDER BY (title ASC, movie_id ASC);
+
+cqlsh:movielens> CREATE TABLE IF NOT EXISTS users_by_movie (
+   ...   movie_id int,
+   ...   user_id  int,
+   ...   title    text STATIC,
+   ...   rating   float,
+   ...   rated_at bigint,
+   ...   PRIMARY KEY ((movie_id), user_id)
+   ... ) WITH CLUSTERING ORDER BY (user_id ASC);
+
+cqlsh:movielens> CREATE TABLE IF NOT EXISTS movies_by_title (
+   ...   title    text,
+   ...   movie_id int,
+   ...   genres   text,
+   ...   PRIMARY KEY ((title), movie_id)
+   ... );

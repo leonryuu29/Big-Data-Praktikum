@@ -1,0 +1,52 @@
+
+========================================================================
+Zeilenzahlen (Kontrolle des Imports)
+========================================================================
+  movies              9742
+  ratings           100836
+  movies_by_user    100836
+  users_by_movie    100836
+  movies_by_title     9742
+
+========================================================================
+d) Die ersten 10 Zeilen von movies und ratings
+========================================================================
+-- movies
+   {'movie_id': 4317, 'genres': 'Comedy|Romance', 'title': 'Love Potion #9 (1992)'}
+   {'movie_id': 3372, 'genres': 'Action|War', 'title': 'Bridge at Remagen, The (1969)'}
+   {'movie_id': 1584, 'genres': 'Drama|Sci-Fi', 'title': 'Contact (1997)'}
+   {'movie_id': 7034, 'genres': 'Drama|Romance', 'title': 'Show Me Love (Fucking Åmål) (1998)'}
+   {'movie_id': 34323, 'genres': 'Action|Crime|Horror', 'title': "Devil's Rejects, The (2005)"}
+   {'movie_id': 26713, 'genres': 'Drama|Romance', 'title': 'Days of Being Wild (A Fei jingjyuhn) (1990)'}
+   {'movie_id': 4830, 'genres': 'Crime|Drama', 'title': 'Brubaker (1980)'}
+   {'movie_id': 2731, 'genres': 'Crime|Drama', 'title': '400 Blows, The (Les quatre cents coups) (1959)'}
+   {'movie_id': 70728, 'genres': 'Action|Comedy|Drama|Thriller', 'title': 'Bronson (2009)'}
+   {'movie_id': 45517, 'genres': 'Animation|Children|Comedy', 'title': 'Cars (2006)'}
+-- ratings
+   {'user_id': 23, 'movie_id': 6, 'rated_at': 1107342267, 'rating': 4.0}
+   {'user_id': 23, 'movie_id': 29, 'rated_at': 1107341574, 'rating': 4.0}
+   {'user_id': 23, 'movie_id': 32, 'rated_at': 1107341750, 'rating': 3.5}
+   {'user_id': 23, 'movie_id': 50, 'rated_at': 1107163741, 'rating': 4.0}
+   {'user_id': 23, 'movie_id': 58, 'rated_at': 1107164183, 'rating': 3.0}
+   {'user_id': 23, 'movie_id': 175, 'rated_at': 1107162721, 'rating': 3.0}
+   {'user_id': 23, 'movie_id': 272, 'rated_at': 1107162524, 'rating': 4.0}
+   {'user_id': 23, 'movie_id': 293, 'rated_at': 1107341697, 'rating': 4.0}
+   {'user_id': 23, 'movie_id': 296, 'rated_at': 1107163773, 'rating': 3.5}
+   {'user_id': 23, 'movie_id': 300, 'rated_at': 1107342187, 'rating': 3.0}
+
+========================================================================
+e) Die ersten 5 Filme (alphabetisch), die Nutzy 42 bewertet hat
+========================================================================
+  1. 20 Dates (1998)  (movie_id 2492, Bewertung 1.0)
+  2. 2001: A Space Odyssey (1968)  (movie_id 924, Bewertung 5.0)
+  3. 2010: The Year We Make Contact (1984)  (movie_id 2311, Bewertung 4.0)
+  4. 28 Days (2000)  (movie_id 3534, Bewertung 3.0)
+  5. 8 Seconds (1994)  (movie_id 408, Bewertung 4.0)
+  Nutzy 42 hat insgesamt 440 Filme bewertet.
+
+========================================================================
+f) Welche Nutzys haben "Toy Story (1995)" bewertet?
+========================================================================
+  movie_id(s) zu diesem Titel: [1]
+  movie_id 1: 215 Nutzys; die ersten 10: [1, 5, 7, 15, 17, 18, 19, 21, 27, 31]
+  Durchschnittsbewertung: 3.92

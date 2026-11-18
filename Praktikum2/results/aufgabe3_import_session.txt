@@ -1,0 +1,15 @@
+cqlsh> USE movielens;
+
+cqlsh:movielens> COPY movies (movie_id, title, genres)
+   ...   FROM '/home/cassandra/ml-latest-small/movies.csv'
+   ...   WITH HEADER = true AND ESCAPE = '"';
+Using 1 child processes
+Starting copy of movielens.movies with columns [movie_id, title, genres].
+9742 rows imported from 1 files in 0.697 seconds (0 skipped).
+
+cqlsh:movielens> COPY ratings (user_id, movie_id, rating, rated_at)
+   ...   FROM '/home/cassandra/ml-latest-small/ratings.csv'
+   ...   WITH HEADER = true;
+Using 1 child processes
+Starting copy of movielens.ratings with columns [user_id, movie_id, rating, rated_at].
+100836 rows imported from 1 files in 0 day, 0 hour, 0 minute, and 2.129 seconds (0 skipped).

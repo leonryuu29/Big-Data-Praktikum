@@ -1,0 +1,33 @@
+cqlsh> USE movielens;
+
+cqlsh:movielens> SELECT * FROM movies LIMIT 10;
+ movie_id | genres                       | title
+----------+------------------------------+------------------------------------------------
+     4317 |               Comedy|Romance |                          Love Potion #9 (1992)
+     3372 |                   Action|War |                  Bridge at Remagen, The (1969)
+     1584 |                 Drama|Sci-Fi |                                 Contact (1997)
+     7034 |                Drama|Romance |             Show Me Love (Fucking Åmål) (1998)
+    34323 |          Action|Crime|Horror |                    Devil's Rejects, The (2005)
+    26713 |                Drama|Romance |    Days of Being Wild (A Fei jingjyuhn) (1990)
+     4830 |                  Crime|Drama |                                Brubaker (1980)
+     2731 |                  Crime|Drama | 400 Blows, The (Les quatre cents coups) (1959)
+    70728 | Action|Comedy|Drama|Thriller |                                 Bronson (2009)
+    45517 |    Animation|Children|Comedy |                                    Cars (2006)
+
+(10 rows)
+
+cqlsh:movielens> SELECT * FROM ratings LIMIT 10;
+ user_id | movie_id | rated_at   | rating
+---------+----------+------------+--------
+      23 |        6 | 1107342267 |      4
+      23 |       29 | 1107341574 |      4
+      23 |       32 | 1107341750 |    3.5
+      23 |       50 | 1107163741 |      4
+      23 |       58 | 1107164183 |      3
+      23 |      175 | 1107162721 |      3
+      23 |      272 | 1107162524 |      4
+      23 |      293 | 1107341697 |      4
+      23 |      296 | 1107163773 |    3.5
+      23 |      300 | 1107342187 |      3
+
+(10 rows)

@@ -1,0 +1,4 @@
+movies_by_user.csv      100836 Zeilen
+users_by_movie.csv      100836 Zeilen
+movies_by_title.csv       9742 Zeilen
+Quelle: 9742 Filme, 100836 Bewertungen; Dauer 0.38 s
