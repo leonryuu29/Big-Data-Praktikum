@@ -1,0 +1,60 @@
+cqlsh> USE movielens;
+
+cqlsh:movielens> SELECT title, rating FROM movies_by_user WHERE user_id = 42 LIMIT 5;
+ title                                 | rating
+---------------------------------------+--------
+                       20 Dates (1998) |      1
+          2001: A Space Odyssey (1968) |      5
+ 2010: The Year We Make Contact (1984) |      4
+                        28 Days (2000) |      3
+                      8 Seconds (1994) |      4
+
+(5 rows)
+
+cqlsh:movielens> SELECT COUNT(*) FROM movies_by_user WHERE user_id = 42;
+ count
+-------
+   440
+
+(1 rows)
+
+cqlsh:movielens> SELECT movie_id, title FROM movies_by_title WHERE title = 'Toy Story (1995)';
+ movie_id | title
+----------+------------------
+        1 | Toy Story (1995)
+
+(1 rows)
+
+cqlsh:movielens> SELECT user_id, rating FROM users_by_movie WHERE movie_id = 1 LIMIT 10;
+ user_id | rating
+---------+--------
+       1 |      4
+       5 |      4
+       7 |    4.5
+      15 |    2.5
+      17 |    4.5
+      18 |    3.5
+      19 |      4
+      21 |    3.5
+      27 |      3
+      31 |      5
+
+(10 rows)
+
+cqlsh:movielens> SELECT COUNT(*) FROM users_by_movie WHERE movie_id = 1;
+ count
+-------
+   215
+
+(1 rows)
+
+cqlsh:movielens> SELECT * FROM movies_by_title WHERE title = 'Emma (1996)';
+ title       | movie_id | genres
+-------------+----------+----------------------
+ Emma (1996) |      838 | Comedy|Drama|Romance
+ Emma (1996) |    26958 |              Romance
+
+(2 rows)
+
+cqlsh:movielens> SELECT user_id FROM ratings WHERE movie_id = 1;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Cannot execute this query as it might involve data filtering and thus may have unpredictable performance. If you want to execute this query despite the performance unpredictability, use ALLOW FILTERING"

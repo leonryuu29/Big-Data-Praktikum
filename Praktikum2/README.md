@@ -66,8 +66,8 @@ flowchart TD
 | 测试链 54 个 + 变异测试 5 个 | ✅ | 全部通过；5 个故意埋的 bug 全部被测出 |
 | 全新容器端到端复现 | ✅ | 从空数据库开始跑通 |
 | Abgabe.md、TESTBERICHT.md | ✅ | 德语 |
-| GitHub PR + CI（Py 3.10/3.13 × Cassandra 4.1/5） | ⏳ | 进行中 |
-| 本地 Windows 复现（Docker Desktop） | ⏳ | 等你运行 `deploy.bat` |
+| GitHub PR + CI（Py 3.10/3.13 × Cassandra 4.1/5） | ✅ | 4 个组合全部 54/54；CI 走的是题目里的 `wget` 路线 |
+| 本地 Windows 复现（Docker Desktop） | ✅ | `deploy.bat` 54/54，答案一致，证据在 `results/windows/` |
 | ILIAS 提交 | ⏳ | 截止 24.11 |
 
 ## 4. 关键设计决策（思考记录）
@@ -135,5 +135,5 @@ Cassandra 没有 JOIN，也没有 `INSERT … SELECT`。做法是用 `denormaliz
 | `scripts/trace_queries.py` | Query Tracing 证据 |
 | `scripts/run_praktikum2.ps1` / `.sh` | 一键完整流程（Windows / Linux·CI） |
 | `deploy.bat`、`run_tests.bat`、`cqlsh.bat` | Windows 双击使用 |
-| `results/` | 云端真实运行输出；本地运行结果在 `results/local/`（不提交到 git） |
+| `results/` | 云端真实运行输出；`results/windows/` 是你电脑上的运行结果；每次本地运行的完整输出在 `results/local/`（不提交到 git） |
 | `docs/` | Aufgabe 2 笔记、截图 |

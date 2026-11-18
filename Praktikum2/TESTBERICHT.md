@@ -14,14 +14,14 @@
 
 | | Cloud-Container (dieser Bericht) | Windows-Rechner | GitHub Actions (CI) |
 |---|---|---|---|
-| Status | ✅ 54/54 | ⏳ wird nach dem lokalen Lauf nachgetragen | siehe Pull Request |
-| Cassandra | 5.0.9, offizielles Image `cassandra:latest` | dasselbe Image über Docker Desktop | `cassandra:latest` und `cassandra:4.1` |
+| Status | ✅ 54/54 | ✅ 54/54 (`results/windows/`) | ✅ 4 × 54/54 |
+| Cassandra | 5.0.9, offizielles Image `cassandra:latest` | 5.0.9 über Docker Desktop (Docker 29.9.3) | 5.0 (`latest`) und 4.1.12 |
 | Python | 3.13 | 3.10.11 | 3.10 und 3.13 |
-| Treiber | cassandra-driver 3.29.0 + pyasyncore (aus dem Image, identisch mit cqlsh) | cassandra-driver von PyPI | cassandra-driver von PyPI |
-| Daten | ml-latest-small (SHA-256 `696d65a3…e436`) | per `wget` im Container | per `wget` im Container |
+| Treiber | cassandra-driver 3.29.0 + pyasyncore (aus dem Image, identisch mit cqlsh) | cassandra-driver von PyPI | cassandra-driver 3.30.1 von PyPI |
+| Daten | ml-latest-small (SHA-256 `696d65a3…e436`) | per `apt-get`/`wget` im Container wie im Aufgabenblatt ✅ | per `wget` im Container ✅ |
 | Ablauf | `scripts/run_praktikum2.sh` | `deploy.bat` → `scripts/run_praktikum2.ps1` | `scripts/run_praktikum2.sh` |
 
-Der vollständige Ablauf wurde zusätzlich in einem **frischen Container** von Grund auf wiederholt: neues Image, leere Datenbank, Download-Fallback. Auch dabei waren alle 54 Tests grün.
+Alle drei Umgebungen liefern identische Antworten. Der vollständige Ablauf wurde zusätzlich in einem **frischen Container** von Grund auf wiederholt: neues Image, leere Datenbank, Download-Fallback. Auch dabei waren alle 54 Tests grün.
 
 ## 2. Teststrategie: fünf Stufen
 

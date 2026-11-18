@@ -1,0 +1,47 @@
+### e) Filme von Nutzy 42 (Abfragetabelle)
+SELECT title FROM movies_by_user WHERE user_id = 42 LIMIT 5
+-> 5 Zeilen, Dauer laut Trace 9.2 ms
+       2.14 ms  Parsing SELECT title FROM movies_by_user WHERE user_id = 42 LIMIT 5
+       3.01 ms  Preparing statement
+       5.91 ms  Executing single-partition query on movies_by_user
+       6.12 ms  Acquiring sstable references
+       6.35 ms  Skipped 0/1 non-slice-intersecting sstables, included 0 due to tombstones
+       6.78 ms  Key cache hit for sstable 1, size = 0
+       7.94 ms  Merged data from memtables and 1 sstables
+       8.33 ms  Read 5 live rows and 0 tombstone cells
+
+### f) Nutzys von Film 1 (Abfragetabelle)
+SELECT user_id FROM users_by_movie WHERE movie_id = 1
+-> 215 Zeilen, Dauer laut Trace 3.9 ms
+       0.43 ms  Parsing SELECT user_id FROM users_by_movie WHERE movie_id = 1
+       0.77 ms  Preparing statement
+       1.71 ms  Executing single-partition query on users_by_movie
+       1.92 ms  Acquiring sstable references
+       2.16 ms  Skipped 0/1 non-slice-intersecting sstables, included 0 due to tombstones
+       2.32 ms  Key cache hit for sstable 1, size = 0
+       3.08 ms  Merged data from memtables and 1 sstables
+       3.28 ms  Read 216 live rows and 0 tombstone cells
+
+### f) Titel -> movie_id
+SELECT movie_id FROM movies_by_title WHERE title = 'Toy Story (1995)'
+-> 1 Zeilen, Dauer laut Trace 2.9 ms
+       0.45 ms  Parsing SELECT movie_id FROM movies_by_title WHERE title = 'Toy Story (1995)'
+       0.83 ms  Preparing statement
+       1.61 ms  Executing single-partition query on movies_by_title
+       1.77 ms  Acquiring sstable references
+       1.96 ms  Skipped 0/1 non-slice-intersecting sstables, included 0 due to tombstones
+       2.12 ms  Key cache hit for sstable 1, size = 0
+       2.45 ms  Merged data from memtables and 1 sstables
+       2.54 ms  Read 1 live rows and 0 tombstone cells
+
+### Gegenprobe: Nutzys von Film 1 auf der Basistabelle (ALLOW FILTERING)
+SELECT user_id FROM ratings WHERE movie_id = 1 ALLOW FILTERING
+-> 215 Zeilen, Dauer laut Trace 10.5 ms
+       0.38 ms  Parsing SELECT user_id FROM ratings WHERE movie_id = 1 ALLOW FILTERING
+       0.71 ms  Preparing statement
+       1.49 ms  Computing ranges to query
+       1.93 ms  Submitting range requests on 17 ranges with a concurrency of 1 (7819.2 rows per range expected)
+       2.31 ms  Submitted 1 concurrent range requests
+       2.55 ms  Executing seq scan across 1 sstables for (min(-9223372036854775808), min(-9223372036854775808)]
+       9.28 ms  Read 215 live rows and 0 tombstone cells
+
