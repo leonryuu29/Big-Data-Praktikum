@@ -1,0 +1,22 @@
+cqlsh> USE movielens;
+
+cqlsh:movielens> COPY movies_by_user (user_id, title, movie_id, rating, rated_at)
+   ...   FROM '/home/cassandra/denormalized/movies_by_user.csv'
+   ...   WITH HEADER = true AND ESCAPE = '"';
+Using 1 child processes
+Starting copy of movielens.movies_by_user with columns [user_id, title, movie_id, rating, rated_at].
+100836 rows imported from 1 files in 0 day, 0 hour, 0 minute, and 2.259 seconds (0 skipped).
+
+cqlsh:movielens> COPY users_by_movie (movie_id, user_id, title, rating, rated_at)
+   ...   FROM '/home/cassandra/denormalized/users_by_movie.csv'
+   ...   WITH HEADER = true AND ESCAPE = '"';
+Using 1 child processes
+Starting copy of movielens.users_by_movie with columns [movie_id, user_id, title, rating, rated_at].
+100836 rows imported from 1 files in 0 day, 0 hour, 0 minute, and 2.664 seconds (0 skipped).
+
+cqlsh:movielens> COPY movies_by_title (title, movie_id, genres)
+   ...   FROM '/home/cassandra/denormalized/movies_by_title.csv'
+   ...   WITH HEADER = true AND ESCAPE = '"';
+Using 1 child processes
+Starting copy of movielens.movies_by_title with columns [title, movie_id, genres].
+9742 rows imported from 1 files in 0.431 seconds (0 skipped).

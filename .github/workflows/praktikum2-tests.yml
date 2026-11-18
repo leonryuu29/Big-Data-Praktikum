@@ -1,0 +1,64 @@
+name: Praktikum2 Tests
+
+on:
+  push:
+    paths:
+      - "Praktikum2/**"
+      - ".github/workflows/praktikum2-tests.yml"
+  pull_request:
+    paths:
+      - "Praktikum2/**"
+      - ".github/workflows/praktikum2-tests.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Testkette (Python ${{ matrix.python }}, ${{ matrix.image }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.13"]
+        image: ["cassandra:latest", "cassandra:4.1"]
+    defaults:
+      run:
+        shell: bash
+        working-directory: Praktikum2
+    env:
+      PYTHONIOENCODING: utf-8
+      CASS_DRIVER_NO_CYTHON: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Abhängigkeiten installieren
+        run: python -m pip install -r requirements.txt
+
+      - name: Syntax prüfen
+        run: python -m py_compile *.py tests/*.py scripts/*.py
+
+      - name: Unit-Tests (ohne Datenbank)
+        run: python -m unittest discover -s tests -p "test_1_unit.py" -v
+
+      - name: Gesamter Ablauf wie im Aufgabenblatt (Container, apt-get, wget, COPY, Abfragen, Testkette)
+        env:
+          IMAGE: ${{ matrix.image }}
+          OUT: results/ci
+          PYTHON: python
+        run: bash scripts/run_praktikum2.sh
+
+      - name: Ergebnis prüfen (alle Stufen ausgeführt, nichts übersprungen)
+        run: |
+          grep -q "ERGEBNIS: BESTANDEN" results/ci/test_output.txt
+          grep -E "^Gesamt +54 +54 +0 +0" results/ci/test_output.txt
+
+      - name: Ergebnisse hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: praktikum2-py${{ matrix.python }}-${{ strategy.job-index }}
+          path: Praktikum2/results/ci/

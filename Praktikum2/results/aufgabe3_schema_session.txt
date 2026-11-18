@@ -1,0 +1,18 @@
+cqlsh> CREATE KEYSPACE IF NOT EXISTS movielens
+   ...   WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+cqlsh> USE movielens;
+
+cqlsh:movielens> CREATE TABLE IF NOT EXISTS movies (
+   ...   movie_id int PRIMARY KEY,
+   ...   title    text,
+   ...   genres   text
+   ... );
+
+cqlsh:movielens> CREATE TABLE IF NOT EXISTS ratings (
+   ...   user_id  int,
+   ...   movie_id int,
+   ...   rating   float,
+   ...   rated_at bigint,
+   ...   PRIMARY KEY ((user_id), movie_id)
+   ... );

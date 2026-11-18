@@ -1,12 +1,26 @@
 # Big Data Praktikum (HSBI, WS 2026/27)
 
 [![Praktikum1 Tests](https://github.com/leonryuu29/Big-Data-Praktikum/actions/workflows/praktikum1-tests.yml/badge.svg)](https://github.com/leonryuu29/Big-Data-Praktikum/actions/workflows/praktikum1-tests.yml)
+[![Praktikum2 Tests](https://github.com/leonryuu29/Big-Data-Praktikum/actions/workflows/praktikum2-tests.yml/badge.svg)](https://github.com/leonryuu29/Big-Data-Praktikum/actions/workflows/praktikum2-tests.yml)
 
 Lösungen zu den Praktika der Vorlesung *Big Data* (Prof. Dr. Stefan Berlik).
 
 | Praktikum | Thema | Status | Ordner |
 |---|---|---|---|
 | 1 | Redis: Datentypen, Yelp-Business-Daten, Autovervollständigung | ✅ fertig, 23/23 Tests | [`Praktikum1/`](Praktikum1/) |
+| 2 | Cassandra: CQL, Architektur, MovieLens, abfragegetriebene Tabellen | ✅ fertig, 54/54 Tests | [`Praktikum2/`](Praktikum2/) |
+
+## Praktikum 2 – Cassandra + MovieLens
+
+| Datei | Inhalt |
+|---|---|
+| [`Abgabe.md`](Praktikum2/Abgabe.md) | Abgabe (Deutsch) mit allen Antworten und den Notizen zu Aufgabe 2 |
+| [`TESTBERICHT.md`](Praktikum2/TESTBERICHT.md) | Testbericht: 5-stufige Testkette, Mutationstest |
+| [`README.md`](Praktikum2/README.md) | Aufgabenanalyse, Workflow, Fortschritt, Entwurfsentscheidungen (Chinesisch) |
+
+**Ergebnisse:** Nutzy 42 hat 440 Filme bewertet; die ersten 5 alphabetisch sind *20 Dates (1998)*, *2001: A Space Odyssey (1968)*, *2010: The Year We Make Contact (1984)*, *28 Days (2000)*, *8 Seconds (1994)*. „Toy Story (1995)“ wurde von 215 Nutzys bewertet.
+
+**Schnellstart (Windows mit Docker Desktop):** `Praktikum2\deploy.bat` doppelklicken. Linux/macOS: `bash Praktikum2/scripts/run_praktikum2.sh`.
 
 ## Praktikum 1 – Redis + Yelp
 
